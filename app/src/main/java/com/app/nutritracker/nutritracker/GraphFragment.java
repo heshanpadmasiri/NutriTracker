@@ -1,12 +1,22 @@
 package com.app.nutritracker.nutritracker;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.fitness.FitnessOptions;
+import com.google.android.gms.fitness.data.DataType;
+
+import java.util.ArrayList;
+
+import static com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment.TAG;
 
 
 /**
@@ -18,6 +28,9 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class GraphFragment extends Fragment {
+
+    private FitnessOptions mFitnessOptions;
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -53,11 +66,33 @@ public class GraphFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        mFitnessOptions = FitnessOptions.builder()
+                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.TYPE_STEP_COUNT_CUMULATIVE, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
+                .build();
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        GoogleSignInAccount gsa = GoogleSignIn.getAccountForExtension(this.getContext(),mFitnessOptions);
+        WeeklyRecordAccessThread weeklyCaloryConsumptionRecordThread = new WeeklyRecordAccessThread(gsa,this.getContext(),this,DataType.TYPE_CALORIES_EXPENDED);
+        weeklyCaloryConsumptionRecordThread.run();
+
+        WeeklyRecordAccessThread weeklyStepCountThread = new WeeklyRecordAccessThread(gsa,this.getContext(),this,DataType.TYPE_STEP_COUNT_CUMULATIVE);
+        weeklyStepCountThread.run();
+    }
+
+    public synchronized void updateWeeklyRecord(ArrayList<Float> weeklyCaloryCounts, DataType dataType){
+        // TODO: use this to update graph
+        if (dataType == DataType.TYPE_CALORIES_EXPENDED){
+
+        } else if (dataType == DataType.TYPE_STEP_COUNT_CUMULATIVE){
+
+        }
+        Log.i(TAG,"tt");
     }
 
     @Override
@@ -77,10 +112,11 @@ public class GraphFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
+        try {
             mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
+            //mListener.onFragmentInteractionHome(Uri.parse("doWhatYouWant"));
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -105,4 +141,6 @@ public class GraphFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
 }

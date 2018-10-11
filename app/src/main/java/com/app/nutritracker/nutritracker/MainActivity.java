@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_diet) {
             fragmentManager.beginTransaction().replace(R.id.content_frame,new DietFragment()).commit();
         } else if (id == R.id.nav_graph) {
-            fragmentManager.beginTransaction().replace(R.id.content_frame,new CalculateCalorieActivity()).commit();
+            fragmentManager.beginTransaction().replace(R.id.content_frame,new GraphFragment()).commit();
         } else if (id == R.id.nav_settings) {
             fragmentManager.beginTransaction().replace(R.id.content_frame,new SettingsFragment()).commit();
         }

@@ -31,13 +31,13 @@ class WeeklyRecordAccessThread implements Runnable {
 
     GoogleSignInAccount gsa;
     Context context;
-    CalculateCalorieActivity calculateCalorieActivity;
+    GraphFragment graphFragment;
     DataType targetType;
 
-    WeeklyRecordAccessThread(GoogleSignInAccount googleSignInAccount, Context context, CalculateCalorieActivity calculateCalorieActivity, DataType targetType){
+    WeeklyRecordAccessThread(GoogleSignInAccount googleSignInAccount, Context context, GraphFragment graphFragment, DataType targetType){
         gsa = googleSignInAccount;
         this.context = context;
-        this.calculateCalorieActivity = calculateCalorieActivity;
+        this.graphFragment = graphFragment;
         this.targetType = targetType;
     }
 
@@ -92,7 +92,7 @@ class WeeklyRecordAccessThread implements Runnable {
                         }
                     }
                 }
-                calculateCalorieActivity.updateWeeklyRecord(values,targetType);
+                graphFragment.updateWeeklyRecord(values,targetType);
             }
         });
         response.addOnFailureListener(new OnFailureListener() {
