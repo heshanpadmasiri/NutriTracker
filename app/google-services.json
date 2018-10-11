@@ -1,0 +1,86 @@
+{
+  "project_info": {
+    "project_number": "470190558789",
+    "firebase_url": "https://nutritracker-5f262.firebaseio.com",
+    "project_id": "nutritracker-5f262",
+    "storage_bucket": "nutritracker-5f262.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470190558789:android:22d07858f9d14bac",
+        "android_client_info": {
+          "package_name": "com.app.nutritracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470190558789-jocviq9omgsj37ihui6g2f9e8f952bth.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCohCqCGeVAv-sRtT6RfKv04vb4Y8czBXw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470190558789:android:f681cb7ae74c66c0",
+        "android_client_info": {
+          "package_name": "com.app.nutritracker.nutritracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470190558789-6d3cn2tljbi6m0dqh8rh0p1s5ml2om94.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.nutritracker.nutritracker",
+            "certificate_hash": "843fa46a5f2e5095782f776c3547b7cc303620bd"
+          }
+        },
+        {
+          "client_id": "470190558789-jocviq9omgsj37ihui6g2f9e8f952bth.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCohCqCGeVAv-sRtT6RfKv04vb4Y8czBXw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470190558789-jocviq9omgsj37ihui6g2f9e8f952bth.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
