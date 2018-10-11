@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import static com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment.TAG;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,CalculateCalorieActivity.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,DietFragment.OnFragmentInteractionListener,GraphFragment.OnFragmentInteractionListener,SettingsFragment.OnFragmentInteractionListener {
 
     private static final int RC_SIGN_IN = 1;
     private static final int GOOGLE_FIT_PERMISSION_CODE = 2;
@@ -56,14 +56,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -74,7 +67,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         mAuth = FirebaseAuth.getInstance();
-        txtView = findViewById(R.id.txtView);
+        //txtView = findViewById(R.id.txtView);
+        android.app.FragmentManager fragmentManager=getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame,new DietFragment()).commit();
 
         mFitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
@@ -156,6 +151,7 @@ public class MainActivity extends AppCompatActivity
                 // login Success
                 txtView.setText("Successfully logged in");
 
+                //txtView.setText("Successfully logged in");
             } else {
                 // login failed
                 txtView.setText("login failed");
@@ -195,10 +191,7 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+
 
         return super.onOptionsItemSelected(item);
     }
