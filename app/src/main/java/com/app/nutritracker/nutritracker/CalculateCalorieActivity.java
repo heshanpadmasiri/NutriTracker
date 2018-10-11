@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
+
+import java.util.ArrayList;
+
+import static com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment.TAG;
 
 
 /**
@@ -64,6 +69,8 @@ public class CalculateCalorieActivity extends Fragment {
         mFitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                 .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.TYPE_STEP_COUNT_CUMULATIVE, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
                 .build();
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
@@ -71,8 +78,21 @@ public class CalculateCalorieActivity extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         GoogleSignInAccount gsa = GoogleSignIn.getAccountForExtension(this.getContext(),mFitnessOptions);
-        HistoryAccessThread historyAccessThread = new HistoryAccessThread(gsa,this.getContext());
-        historyAccessThread.run();
+        WeeklyRecordAccessThread weeklyCaloryConsumptionRecordThread = new WeeklyRecordAccessThread(gsa,this.getContext(),this,DataType.TYPE_CALORIES_EXPENDED);
+        weeklyCaloryConsumptionRecordThread.run();
+
+        WeeklyRecordAccessThread weeklyStepCountThread = new WeeklyRecordAccessThread(gsa,this.getContext(),this,DataType.TYPE_STEP_COUNT_CUMULATIVE);
+        weeklyStepCountThread.run();
+    }
+
+    public synchronized void updateWeeklyRecord(ArrayList<Float> weeklyCaloryCounts, DataType dataType){
+        // TODO: use this to update graph
+        if (dataType == DataType.TYPE_CALORIES_EXPENDED){
+
+        } else if (dataType == DataType.TYPE_STEP_COUNT_CUMULATIVE){
+
+        }
+        Log.i(TAG,"tt");
     }
 
     @Override
