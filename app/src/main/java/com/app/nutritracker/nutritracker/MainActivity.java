@@ -7,9 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,6 +19,9 @@ import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.fitness.FitnessOptions;
+import com.google.android.gms.fitness.data.DataType;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -32,6 +32,9 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,DietFragment.OnFragmentInteractionListener,GraphFragment.OnFragmentInteractionListener,SettingsFragment.OnFragmentInteractionListener {
 
     private static final int RC_SIGN_IN = 1;
+    private static final int GOOGLE_FIT_PERMISSION_CODE = 2;
+
+    private FitnessOptions mFitnessOptions;
 
     private FirebaseAuth mAuth;
     private TextView txtView;
@@ -58,6 +61,11 @@ public class MainActivity extends AppCompatActivity
         android.app.FragmentManager fragmentManager=getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame,new DietFragment()).commit();
 
+        mFitnessOptions = FitnessOptions.builder()
+                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .build();
+
     }
 
     protected void startAuthentication(){
@@ -72,6 +80,20 @@ public class MainActivity extends AppCompatActivity
                 RC_SIGN_IN);
     }
 
+    protected void getSensorPermission(){
+        if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(this), mFitnessOptions)){
+            GoogleSignIn.requestPermissions(
+                    this,
+                    GOOGLE_FIT_PERMISSION_CODE,
+                    GoogleSignIn.getLastSignedInAccount(this),
+                    mFitnessOptions
+
+            );
+        } else {
+            accessGoogleFit();
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -79,7 +101,13 @@ public class MainActivity extends AppCompatActivity
         if (user == null){
             // user haven't logged in
             startAuthentication();
+        } else {
+            getSensorPermission();
         }
+    }
+
+    private void accessGoogleFit() {
+
     }
 
     @Override
@@ -90,10 +118,20 @@ public class MainActivity extends AppCompatActivity
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK){
                 // login Success
+                txtView.setText("Successfully logged in");
+
                 //txtView.setText("Successfully logged in");
             } else {
                 // login failed
-                //txtView.setText("login failed");
+                txtView.setText("login failed");
+            }
+        } else if (requestCode == GOOGLE_FIT_PERMISSION_CODE){
+            if (resultCode == RESULT_OK){
+                // fit permission granted
+                // todo: get user step count data
+                accessGoogleFit();
+            } else {
+                // fit permission rejected
             }
         }
     }
@@ -133,12 +171,18 @@ public class MainActivity extends AppCompatActivity
         android.app.FragmentManager fragmentManager=getFragmentManager();
         int id = item.getItemId();
 
-        if (id == R.id.nav_diet) {
-            fragmentManager.beginTransaction().replace(R.id.content_frame,new DietFragment()).commit();
-        } else if (id == R.id.nav_graph) {
-            fragmentManager.beginTransaction().replace(R.id.content_frame,new GraphFragment()).commit();
-        } else if (id == R.id.nav_settings) {
-            fragmentManager.beginTransaction().replace(R.id.content_frame,new SettingsFragment()).commit();
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        } else if (id == R.id.nav_gallery) {
+            fragmentManager.beginTransaction().replace(R.id.content_frame,new CalculateCalorieActivity()).commit();
+        } else if (id == R.id.nav_slideshow) {
+
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
