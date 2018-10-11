@@ -12,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,13 +21,22 @@ import android.widget.TextView;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessOptions;
+import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
+import com.google.android.gms.fitness.data.Field;
+import com.google.android.gms.fitness.result.DailyTotalResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment.TAG;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,CalculateCalorieActivity.OnFragmentInteractionListener {
@@ -68,6 +78,7 @@ public class MainActivity extends AppCompatActivity
 
         mFitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.TYPE_STEP_COUNT_CUMULATIVE, FitnessOptions.ACCESS_READ)
                 .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                 .build();
 
@@ -113,6 +124,26 @@ public class MainActivity extends AppCompatActivity
 
     private void accessGoogleFit() {
 
+    }
+
+    protected Void doInBackground(GoogleApiClient mClient) {
+
+        long total = 0;
+
+        PendingResult<DailyTotalResult> result = Fitness.HistoryApi.readDailyTotal(mClient, DataType.TYPE_STEP_COUNT_DELTA);
+        DailyTotalResult totalResult = result.await(30, TimeUnit.SECONDS);
+        if (totalResult.getStatus().isSuccess()) {
+            DataSet totalSet = totalResult.getTotal();
+            total = totalSet.isEmpty()
+                    ? 0
+                    : totalSet.getDataPoints().get(0).getValue(Field.FIELD_STEPS).asInt();
+        } else {
+            Log.w(TAG, "There was a problem getting the step count.");
+        }
+
+        Log.i(TAG, "Total steps: " + total);
+
+        return null;
     }
 
     @Override
@@ -207,3 +238,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 }
+
+
+
