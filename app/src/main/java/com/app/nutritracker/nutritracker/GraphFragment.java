@@ -109,8 +109,8 @@ public class GraphFragment extends Fragment {
 
         ////lineDataSet2.removeLast();
        // for(int i=0;i<=weeklyCaloryCounts.size();i++){
-        //    lineDataSet2.addEntry(new Entry(weeklyCaloryCounts.get(i),i));
-        //}
+       //     lineDataSet2.addEntry(new Entry(weeklyCaloryCounts.get(i),i));
+       // }
         //lineChartCalories.notifyDataSetChanged(); // let the chart know it's data changed
         //lineChartCalories.invalidate();
 
