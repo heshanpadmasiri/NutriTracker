@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -200,18 +200,12 @@ public class MainActivity extends AppCompatActivity
         android.app.FragmentManager fragmentManager=getFragmentManager();
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.nav_diet) {
+            fragmentManager.beginTransaction().replace(R.id.content_frame,new DietFragment()).commit();
+        } else if (id == R.id.nav_graph) {
             fragmentManager.beginTransaction().replace(R.id.content_frame,new CalculateCalorieActivity()).commit();
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_settings) {
+            fragmentManager.beginTransaction().replace(R.id.content_frame,new SettingsFragment()).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -229,6 +223,5 @@ public class MainActivity extends AppCompatActivity
 
     }
 }
-
 
 
