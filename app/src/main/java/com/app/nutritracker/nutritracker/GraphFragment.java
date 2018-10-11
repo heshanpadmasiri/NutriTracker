@@ -2,6 +2,7 @@ package com.app.nutritracker.nutritracker;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,12 +10,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment.TAG;
 
@@ -28,6 +36,12 @@ import static com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment.TAG;
  * create an instance of this fragment.
  */
 public class GraphFragment extends Fragment {
+
+    LineChart lineChartCalories;
+    LineChart lineChartFootSteps;
+
+    public LineDataSet lineDataSet2;
+    public LineDataSet lineDataSet3;
 
     private FitnessOptions mFitnessOptions;
 
@@ -92,6 +106,14 @@ public class GraphFragment extends Fragment {
         } else if (dataType == DataType.TYPE_STEP_COUNT_CUMULATIVE){
 
         }
+
+        ////lineDataSet2.removeLast();
+       // for(int i=0;i<=weeklyCaloryCounts.size();i++){
+        //    lineDataSet2.addEntry(new Entry(weeklyCaloryCounts.get(i),i));
+        //}
+        //lineChartCalories.notifyDataSetChanged(); // let the chart know it's data changed
+        //lineChartCalories.invalidate();
+
         Log.i(TAG,"tt");
     }
 
@@ -99,7 +121,78 @@ public class GraphFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_graph, container, false);
+
+        View view  = inflater.inflate(R.layout.fragment_graph, container, false);
+        lineChartCalories = view.findViewById(R.id.lineChartCalories);
+        lineChartFootSteps = view.findViewById(R.id.lineChartFootSteps);
+
+        ArrayList<String> xAXES = new ArrayList<>();
+        ArrayList<Entry> yAXESsin = new ArrayList<>();
+        ArrayList<Entry> yAXESfootSteps = new ArrayList<>();
+        Random random = new Random(40);
+
+        double x = 0 ;
+        int numDataPoints = 50;
+        for(int i=0;i<numDataPoints;i++){
+            // float sinFunction = Float.parseFloat(String.valueOf(Math.sin(x)));
+
+            x = x + 0.1;
+            yAXESsin.add(new Entry(random.nextFloat(),i));
+            yAXESfootSteps.add(new Entry(random.nextFloat(),i));
+            xAXES.add(i, String.valueOf(x));
+        }
+        String[] xaxes = new String[xAXES.size()];
+        for(int i=0; i<xAXES.size();i++){
+            xaxes[i] = xAXES.get(i);
+        }
+
+        ArrayList<ILineDataSet> lineDataSets = new ArrayList<>();
+        ArrayList<ILineDataSet> lineDataSets1 = new ArrayList<>();
+
+
+
+        lineDataSet2 = new LineDataSet(yAXESsin,"Your daily step count until now");
+        lineDataSet2.setDrawCircles(false);
+        lineDataSet2.setValueTextSize(0);
+        lineDataSet2.setCircleColorHole(Color.BLACK);
+        lineDataSet2.setCircleColor(Color.BLACK);
+        lineDataSet2.setColor(Color.BLUE);
+
+        lineDataSet2.setDrawFilled(true);
+        lineDataSet2.setFillAlpha(255);
+        lineDataSet2.setFillColor(Color.BLUE);
+
+
+        lineDataSet3 = new LineDataSet(yAXESfootSteps,"Your daily step count until now");
+        lineDataSet3.setDrawCircles(false);
+        lineDataSet3.setValueTextSize(0);
+        lineDataSet3.setCircleColorHole(Color.BLACK);
+        lineDataSet3.setCircleColor(Color.BLACK);
+        lineDataSet3.setColor(Color.parseColor("#FF4500"));
+
+        lineDataSet3.setDrawFilled(true);
+        lineDataSet3.setFillAlpha(255);
+        lineDataSet3.setFillColor(Color.parseColor("#FF4500"));
+
+
+
+
+        lineDataSets.add(lineDataSet2);
+        lineDataSets1.add(lineDataSet3);
+
+        lineChartCalories.setData(new LineData(xaxes,lineDataSets));
+        lineChartFootSteps.setData(new LineData(xaxes,lineDataSets1));
+
+        lineChartCalories.setVisibleXRangeMaximum(65f);
+        lineChartFootSteps.setVisibleXRangeMaximum(65f);
+
+        Legend legend = lineChartCalories.getLegend();
+        Legend legend1 = lineChartFootSteps.getLegend();
+        legend.setEnabled(false);
+        legend1.setEnabled(false);
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
