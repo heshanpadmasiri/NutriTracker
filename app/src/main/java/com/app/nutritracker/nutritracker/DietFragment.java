@@ -149,7 +149,10 @@ public class DietFragment extends Fragment {
                 break;
         }
         if (description != null && image != null){
+            // update diet description
             txtDescription.setText(description);
+            // update image
+            new DownloadImageTask(image).execute(imageURL);
         }
     }
 
