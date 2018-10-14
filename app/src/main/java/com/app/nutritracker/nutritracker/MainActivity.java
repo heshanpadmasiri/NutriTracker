@@ -70,6 +70,10 @@ public class MainActivity extends AppCompatActivity
                 .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                 .addDataType(DataType.AGGREGATE_CALORIES_EXPENDED, FitnessOptions.ACCESS_READ)
                 .build();
+        if (getIntent().getBooleanExtra("LOGOUT", false))
+        {
+            finish();
+        }
 
     }
 
