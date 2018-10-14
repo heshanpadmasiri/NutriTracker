@@ -22,6 +22,19 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:textSize="18dp"/>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:id="@+id/lineChartCalories"></com.github.mikephil.charting.charts.LineChart>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:layout_below="@id/lineChartCalories"
+
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:id="@+id/lineChartFootSteps"></com.github.mikephil.charting.charts.LineChart>
+
         </RelativeLayout>
     </RelativeLayout>
 
