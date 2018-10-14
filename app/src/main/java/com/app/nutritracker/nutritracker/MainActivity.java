@@ -1,6 +1,6 @@
 package com.app.nutritracker.nutritracker;
 
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,9 +9,9 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity
 
 
         FirebaseUser user = AuthenticationService.getUser();
-        LayoutInflater inflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.nav_header_main, null);
         TextView userName = headerView.findViewById(R.id.userName);
         if (user.getDisplayName() != null){
             userName.setText(user.getDisplayName());
@@ -147,16 +145,31 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == RESULT_OK){
                 onUserLogin();
             } else {
-                // login failed
-                txtView.setText("login failed");
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage("You must login to your Google account")
+                        .setCancelable(false)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                finishAndRemoveTask();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
             }
         } else if (requestCode == GOOGLE_FIT_PERMISSION_CODE){
             if (resultCode == RESULT_OK){
-                // fit permission granted
-                // todo: get user step count data
                 accessGoogleFit();
             } else {
-                // fit permission rejected
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage("This application needs your Google fit data to function")
+                        .setCancelable(false)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                finishAndRemoveTask();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
             }
         }
     }
