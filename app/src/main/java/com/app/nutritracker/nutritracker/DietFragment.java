@@ -90,7 +90,7 @@ public class DietFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_diet, container, false);
         try{
             getRecommandations();
-        } catch (SocketTimeoutException ex ){
+        } catch (SocketTimeoutException | NullPointerException ex ){
             Log.e(TAG,ex.toString());
         }
         this.view = view;

@@ -1,12 +1,28 @@
 package com.app.nutritracker.nutritracker;
 
+import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RadioGroup;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -23,9 +39,15 @@ public class SettingsFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    View view;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private RadioGroup radioGroup;
+
+    private FirebaseFirestore db;
 
     private OnFragmentInteractionListener mListener;
 
@@ -58,20 +80,95 @@ public class SettingsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        View view =  inflater.inflate(R.layout.fragment_settings, container, false);
+        this.view = view;
+        radioGroup = view.findViewById(R.id.rg_1);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                FirebaseUser user = AuthenticationService.getUser();
+                String uid = user.getUid();
+                if (i == R.id.rb_1){
+                    updateDBSettings(0,uid);
+                } else if (i == R.id.rb_2) {
+                    updateDBSettings(1,uid);
+                } else if (i == R.id.rb_3) {
+                    updateDBSettings(2,uid);
+                }else if (i == R.id.rb_4) {
+                    updateDBSettings(3,uid);
+                }
+            }
+        });
+        getSettings();
+        Button btnSignOut = view.findViewById(R.id.btn_signOut);
+        btnSignOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setMessage("SignOutSuccessful")
+                        .setCancelable(false)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent intent = new Intent();
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                intent.putExtra("LOGOUT", true);
+                                startActivity(intent);
+
+                                getActivity().finish();
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+        return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    private void setTarget(long target){
+        if (target == 0){
+            radioGroup.check(R.id.rb_1);
+        } else if (target == 1){
+            radioGroup.check(R.id.rb_2);
+        } else if (target == 2){
+            radioGroup.check(R.id.rb_3);
+        } else if (target == 3){
+            radioGroup.check(R.id.rb_4);
         }
+    }
+
+    private void updateDBSettings(int target, String uid){
+        Map<String,Object> data = new HashMap<>();
+        data.put("target",target);
+        db.collection("users").document(uid).set(data);
+    }
+
+    private void getSettings(){
+        FirebaseUser user = AuthenticationService.getUser();
+        final String uid = user.getUid();
+        db.collection("users").document(uid)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.getResult().exists()){
+                            // user document already exists
+                            long target = (long) task.getResult().get("target");
+                            setTarget(target);
+                        } else {
+                            // set default target to 0 and update the db
+                            setTarget(0);
+                            updateDBSettings(0,uid);
+                        }
+                    }
+                });
     }
 
     @Override
