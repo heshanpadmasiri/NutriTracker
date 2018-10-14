@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity
 
     private FitnessOptions mFitnessOptions;
 
+
+
     private FirebaseAuth mAuth;
     private TextView txtView;
 

@@ -1,13 +1,31 @@
 package com.app.nutritracker.nutritracker;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
+
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,6 +38,9 @@ import android.view.ViewGroup;
 public class DietFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
+    private FirebaseFunctions mFunctions;
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -28,6 +49,7 @@ public class DietFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private View view;
 
     public DietFragment() {
         // Required empty public constructor
@@ -58,13 +80,21 @@ public class DietFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        mFunctions = FirebaseFunctions.getInstance();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_diet, container, false);
+        View view = inflater.inflate(R.layout.fragment_diet, container, false);
+        try{
+            getRecommandations();
+        } catch (SocketTimeoutException ex ){
+            Log.e(TAG,ex.toString());
+        }
+        this.view = view;
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -82,6 +112,74 @@ public class DietFragment extends Fragment {
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    private void getRecommandations() throws SocketTimeoutException{
+        FirebaseUser user = AuthenticationService.getUser();
+        Map<String,Object> data = new HashMap<>();
+        data.put("uid",user.getUid());
+        mFunctions.getHttpsCallable("getRecommandations")
+                .call(data)
+                .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<HttpsCallableResult> task) {
+                        HashMap<String, ArrayList<String>> data = (HashMap<String, ArrayList<String>>) task.getResult().getData();
+                        ArrayList<String> recommandations = data.get("recommandations");
+                        updateFragement(recommandations);
+                    }
+                });
+    }
+
+    private void updateRecommandation(int which, String imageURL, String description){
+        // todo: fix the image size issue
+        TextView txtDescription = null;
+        ImageView image = null;
+        switch (which){
+            case 0:
+                txtDescription = view.findViewById(R.id.desc_1);
+                image = view.findViewById(R.id.image_1);
+                break;
+            case 1:
+                txtDescription = view.findViewById(R.id.desc_2);
+                image = view.findViewById(R.id.image_2);
+                break;
+            case 2:
+                txtDescription = view.findViewById(R.id.desc_3);
+                image = view.findViewById(R.id.image_3);
+                break;
+        }
+        if (description != null && image != null){
+            // update diet description
+            txtDescription.setText(description);
+            // update image
+            new DownloadImageTask(image).execute(imageURL);
+        }
+    }
+
+
+    private void updateFragement(ArrayList<String> recommandations){
+        for (int i = 0; i < 3; i++) {
+            String id = recommandations.get(i);
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            final int finalI = i;
+            db.collection("recommended").document(id)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            try{
+
+                                Map<String,Object> data = task.getResult().getData();
+                                String description = (String) data.get("desc");
+                                String imageUrl = (String) data.get("URL");
+                                updateRecommandation(finalI,imageUrl,description);
+                            } catch (NullPointerException ex){
+                                Log.e(TAG,ex.toString());
+                            }
+
+                        }
+                    });
         }
     }
 
