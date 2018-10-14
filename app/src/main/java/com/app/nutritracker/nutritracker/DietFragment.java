@@ -132,6 +132,7 @@ public class DietFragment extends Fragment {
     }
 
     private void updateRecommandation(int which, String imageURL, String description){
+        // todo: fix the image size issue
         TextView txtDescription = null;
         ImageView image = null;
         switch (which){
