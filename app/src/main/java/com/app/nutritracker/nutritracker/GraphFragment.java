@@ -4,7 +4,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +12,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.util.ArrayList;
-
-import static com.firebase.ui.auth.ui.phone.CheckPhoneNumberFragment.TAG;
 
 
 /**
@@ -39,6 +39,9 @@ public class GraphFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private GraphView caloryGraph;
+    private GraphView stepGraph;
 
     private OnFragmentInteractionListener mListener;
 
@@ -85,21 +88,50 @@ public class GraphFragment extends Fragment {
         weeklyStepCountThread.run();
     }
 
-    public synchronized void updateWeeklyRecord(ArrayList<Float> weeklyCaloryCounts, DataType dataType){
+    public synchronized void updateWeeklyRecord(ArrayList<Float> weeklyValues, DataType dataType){
         // TODO: use this to update graph
         if (dataType == DataType.TYPE_CALORIES_EXPENDED){
-
+            caloryGraph.removeAllSeries();
+            caloryGraph.addSeries(createDataSeries(weeklyValues));
         } else if (dataType == DataType.TYPE_STEP_COUNT_CUMULATIVE){
-
+            stepGraph.removeAllSeries();
+            stepGraph.addSeries(createDataSeries(weeklyValues));
         }
-        Log.i(TAG,"tt");
+    }
+
+    private LineGraphSeries<DataPoint> createDataSeries(ArrayList<Float> values) {
+        DataPoint[] dataPoints = new DataPoint[values.size()];
+        for (int i = 0; i < values.size(); i++) {
+            dataPoints[i] = new DataPoint(i,values.get(i));
+        }
+        return new LineGraphSeries<>(dataPoints);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_graph, container, false);
+        View view = inflater.inflate(R.layout.fragment_graph, container, false);
+        LineGraphSeries<DataPoint> defaultSeries = new LineGraphSeries<>(new DataPoint[] {
+                new DataPoint(0, 0),
+                new DataPoint(1, 0),
+                new DataPoint(2, 0),
+                new DataPoint(3, 0),
+                new DataPoint(4, 0),
+                new DataPoint(5, 0),
+                new DataPoint(6, 0),
+                new DataPoint(7, 0),
+        });
+        caloryGraph = view.findViewById(R.id.caloryGraph);
+        caloryGraph.addSeries(defaultSeries);
+        caloryGraph.setTitle("Calorie burning for last 7 days");
+        caloryGraph.getViewport().setMaxX(7);
+
+        stepGraph = view.findViewById(R.id.stepGraph);
+        stepGraph.addSeries(defaultSeries);
+        stepGraph.setTitle("Step count for last 7 days");
+        stepGraph.getViewport().setMaxX(7);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
